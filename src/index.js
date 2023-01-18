@@ -30,7 +30,7 @@ module.exports.handler = async (event, context) => {
 
   const page = await browser.newPage();
 
-  await page.goto(domain + `/api/image/template/` + companyType + `?`
+  await page.goto(domain + `/image/template/` + companyType + `?`
     + `layerMode=` + layerMode
     + `&lat=` + lat
     + `&level=` + level
@@ -73,7 +73,7 @@ module.exports.handler = async (event, context) => {
 
       let gen_uuid = uuidv4();
 
-      await axios.post(domain + "/api/image/storage", {
+      await axios.post(domain + "/image/storage", {
         "uuid": gen_uuid,
         "base64EncodedImage": imageBuffer.toString('base64'),
       });
