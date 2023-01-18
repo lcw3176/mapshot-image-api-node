@@ -63,8 +63,8 @@ module.exports.handler = async (event, context) => {
   for (let y = 0; y < goal_width; y += WIDTH) {
     for (let x = 0; x < goal_width; x += WIDTH) {
 
-      await page.evaluate((x, y) => {
-        window.scrollBy(x, y);
+      await page.evaluate((_x, _y) => {
+        window.scroll(_x, _y);
       }, x, y);
 
       let imageBuffer = await page.screenshot({
