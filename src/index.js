@@ -7,7 +7,14 @@ module.exports.handler = async (event, context) => {
   const domain = "https://api.kmapshot.com";
 
   let response_arr = []
-  await chromium.font('/opt/NotoSansKR-Regular.otf');
+  
+  let token = typeof event.queryStringParameters.AUTH_TOKEN === "undefined" ? null : event.queryStringParameters.AUTH_TOKEN;
+
+  if(token === null){
+    return {
+      statusCode: 400
+    }
+  }
 
   let type = event.queryStringParameters.type;
   let companyType = event.queryStringParameters.companyType;
@@ -15,6 +22,12 @@ module.exports.handler = async (event, context) => {
   let lat = event.queryStringParameters.lat;
   let level = event.queryStringParameters.level;
   let layerMode = event.queryStringParameters.layerMode;
+
+  const header = {
+    'AUTH_TOKEN': token
+  }
+  
+  await chromium.font('/opt/NotoSansKR-Regular.otf');
 
   const browser = await chromium.puppeteer.launch({
     executablePath: await chromium.executablePath,
@@ -30,13 +43,15 @@ module.exports.handler = async (event, context) => {
 
   const page = await browser.newPage();
 
+  await page.setExtraHTTPHeaders(header);
+
   await page.goto(domain + `/image/template/` + companyType + `?`
     + `layerMode=` + layerMode
     + `&lat=` + lat
     + `&level=` + level
     + `&lng=` + lng
     + `&type=` + type
-    + `&companyType=` + companyType)
+    + `&companyType=` + companyType);
 
   await page.waitForSelector('#checker_true');
 
@@ -73,9 +88,12 @@ module.exports.handler = async (event, context) => {
 
       let gen_uuid = uuidv4();
 
+      
       await axios.post(domain + "/image/storage", {
         "uuid": gen_uuid,
         "base64EncodedImage": imageBuffer.toString('base64'),
+      }, {
+        headers: header
       });
       
       let response = {
