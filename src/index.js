@@ -45,6 +45,8 @@ module.exports.handler = async (event, context) => {
 
   await page.setExtraHTTPHeaders(header);
 
+  console.log("페이지 요청");
+
   await page.goto(domain + `/image/template/` + companyType + `?`
     + `layerMode=` + layerMode
     + `&lat=` + lat
@@ -53,8 +55,10 @@ module.exports.handler = async (event, context) => {
     + `&type=` + type
     + `&companyType=` + companyType);
 
+  console.log("페이지 로딩 대기");
   await page.waitForSelector('#checker_true');
 
+  console.log("아이디 로딩 완료");
   let goal_width;
 
   switch (level) {
@@ -108,7 +112,7 @@ module.exports.handler = async (event, context) => {
   }
 
   await browser.close();
-
+  console.log("브라우저 종료");
   
 
   return {
