@@ -57,23 +57,44 @@ module.exports.handler = async (event, context) => {
 
   let goal_width;
 
-  switch (level) {
-    case '1':
-      goal_width = 5000;
-      break;
-    case '2':
-      goal_width = 4000;
-      break;
-    case '5':
-      goal_width = 5000;
-      break;
-    case '10':
-      goal_width = 5000;
-      break;
-    default:
-      goal_width = 0;
-      break;
+  if(companyType === 'kakao'){
+    switch (level) {
+      case '1':
+        goal_width = 5000;
+        break;
+      case '2':
+        goal_width = 4000;
+        break;
+      case '5':
+        goal_width = 5000;
+        break;
+      case '10':
+        goal_width = 5000;
+        break;
+      default:
+        goal_width = 0;
+        break;
+    }
+  } else { // 구글
+    switch (level) {
+      case '1':
+        goal_width = 6000;
+        break;
+      case '2':
+        goal_width = 5000;
+        break;
+      case '5':
+        goal_width = 6000;
+        break;
+      case '10':
+        goal_width = 6000;
+        break;
+      default:
+        goal_width = 0;
+        break;
+    }
   }
+ 
 
   for (let y = 0; y < goal_width; y += WIDTH) {
     for (let x = 0; x < goal_width; x += WIDTH) {
