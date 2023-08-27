@@ -110,14 +110,23 @@ module.exports.handler = async (event, context) => {
       let gen_uuid = uuidv4();
 
       
-      await axios.post(domain + "/image/storage", {
-        "uuid": gen_uuid,
-        "base64EncodedImage": imageBuffer.toString('base64'),
-      }, {
-        headers: header
-      });
-      
+      if(x === goal_width - WIDTH && y === goal_width - WIDTH) {
+        await axios.post(domain + "/image/storage", {
+          "uuid": gen_uuid,
+          "base64EncodedImage": imageBuffer.toString('base64'),
+        }, {
+          headers: header
+        });
+      } else {
+        axios.post(domain + "/image/storage", {
+          "uuid": gen_uuid,
+          "base64EncodedImage": imageBuffer.toString('base64'),
+        }, {
+          headers: header
+        });
+      }
 
+    
       let response = {
         "uuid": gen_uuid,
         "x": x,
