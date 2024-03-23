@@ -14,7 +14,7 @@ functions:
         path: /lambda
         method: get
   dev:
-    handler: src/index.handler
+    handler: src/index-dev.handler
     events:
       - http:
         path: /lambda-dev
