@@ -2,8 +2,6 @@ const puppeteer = require("puppeteer-core");
 const chromium = require("@sparticuz/chromium");
 const axios = require('axios');
 
-chromium.setHeadlessMode = true;
-
 module.exports.handler = async (event, context) => {
 
   const WIDTH = 1000;
@@ -33,7 +31,7 @@ module.exports.handler = async (event, context) => {
   await chromium.font('/opt/NotoSansKR-Regular.otf');
 
   const browser = await puppeteer.launch({
-    executablePath: await chromium.executablePath,
+    executablePath: await chromium.executablePath(),
     args: chromium.args,
 
     defaultViewport: {
@@ -135,12 +133,18 @@ module.exports.handler = async (event, context) => {
         "y": y
       };
 
-      
+    
       response_arr.push(response);
+
     }
   }
 
-  await browser.close();
+
+  let browserPid = browser.process()?.pid
+
+  if (browserPid) {
+      process.kill(browserPid)
+  }
   
   function waitForCondition() {
     return new Promise(resolve => {
@@ -156,7 +160,7 @@ module.exports.handler = async (event, context) => {
   }
 
   await waitForCondition();
-
+  
   return {
     statusCode: 200,
     headers: {
