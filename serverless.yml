@@ -7,9 +7,15 @@ provider:
   timeout: 30
   region: ap-northeast-2
 functions:
-  start:
+  prod:
     handler: src/index.handler
     events:
       - http:
-          path: /lambda
-          method: get
+        path: /lambda
+        method: get
+  dev:
+    handler: src/index.handler
+    events:
+      - http:
+        path: /lambda-dev
+        method: get
