@@ -2,7 +2,7 @@ service: mapshot-image-lambda
 
 provider:
   name: aws
-  runtime: nodejs14.x
+  runtime: nodejs20.x
   memorySize: 4096
   timeout: 30
   region: ap-northeast-2

@@ -1,8 +1,11 @@
-const chromium = require('chrome-aws-lambda');
+const puppeteer = require("puppeteer-core");
+const chromium = require("@sparticuz/chromium");
 const axios = require('axios');
 
+chromium.setHeadlessMode = true;
 
 module.exports.handler = async (event, context) => {
+
   const WIDTH = 1000;
   const domain = "https://api.kmapshot.com";
 
@@ -29,7 +32,7 @@ module.exports.handler = async (event, context) => {
   
   await chromium.font('/opt/NotoSansKR-Regular.otf');
 
-  const browser = await chromium.puppeteer.launch({
+  const browser = await puppeteer.launch({
     executablePath: await chromium.executablePath,
     args: chromium.args,
 
