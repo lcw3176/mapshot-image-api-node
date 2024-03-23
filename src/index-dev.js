@@ -157,7 +157,7 @@ module.exports.handler = async (event, context) => {
   return {
     statusCode: 200,
     headers: {
-      'Access-Control-Allow-Origin': 'api.kmapshot.com',
+      'Access-Control-Allow-Origin': 'dev-api.kmapshot.com',
     },
     
     body: JSON.stringify(response_arr)
