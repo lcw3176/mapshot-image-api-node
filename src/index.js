@@ -1,122 +1,60 @@
-const puppeteer = require("puppeteer-core");
-const chromium = require("@sparticuz/chromium");
+const axios = require('axios');
 
-exports.handler = awslambda.streamifyResponse(
-  async (event, responseStream, context) => {
-
-    let token = typeof event.queryStringParameters.AUTH_TOKEN === "undefined" ? null : event.queryStringParameters.AUTH_TOKEN;
-
-    if(token === null){
-      return {
-        statusCode: 400
-      }
-    }
-
-    const header = {
-      'AUTH_TOKEN': token
-    }
-
-
-    const domain = "https://api.kmapshot.com";
+module.exports.handler = async (event, context) => {
+  
     
-    let type = event.queryStringParameters.type;
-    let companyType = event.queryStringParameters.companyType;
-    let lng = event.queryStringParameters.lng;
-    let lat = event.queryStringParameters.lat;
-    let level = event.queryStringParameters.level;
-    let layerMode = event.queryStringParameters.layerMode;
-    let noLabel = event.queryStringParameters.noLabel;
-
-    let goal_width;
-
-    if (companyType === 'kakao') {
-      switch (level) {
-        case '1':
-          goal_width = 5000;
-          break;
-        case '2':
-          goal_width = 4000;
-          break;
-        case '5':
-          goal_width = 5000;
-          break;
-        case '10':
-          goal_width = 5000;
-          break;
-        default:
-          goal_width = 0;
-          break;
-      }
-    } else { // 구글
-      switch (level) {
-        case '1':
-          goal_width = 5500;
-          break;
-        case '2':
-          goal_width = 4500;
-          break;
-        case '5':
-          goal_width = 5500;
-          break;
-        case '10':
-          goal_width = 5500;
-          break;
-        default:
-          goal_width = 0;
-          break;
-      }
-    }
-
-    const httpResponseMetadata = {
-      statusCode: 200,
-      headers: {
-        "Content-Type": "image/jpeg"
-      }
+    let layers = event.queryStringParameters.layer;
+    
+    let yMin = event.queryStringParameters.ymin;
+    let xMin = event.queryStringParameters.xmin;
+    let yMax = event.queryStringParameters.ymax;  
+    let xMax = event.queryStringParameters.xmax;
+    let crs = event.queryStringParameters.crs;
+    
+    let height = event.queryStringParameters.height;
+    
+    let url =  "http://api.vworld.kr/req/wms?" 
+                + "SERVICE=WMS&"
+                + "REQUEST=GetMap&"
+                + "VERSION=1.3.0&"
+                + "LAYERS=" + layers + "&"
+                + "STYLES=" + layers + "&"
+                + "CRS=" + crs + "&"
+                + "BBOX=" +  xMin  + "," + yMin + "," + xMax + "," + yMax + "&"
+                + "WIDTH=" + height + "&"
+                + "HEIGHT=" + height + "&"
+                + "FORMAT=image/png&"
+                + "TRANSPARENT=true&"
+                + "BGCOLOR=0xFFFFFF&"
+                + "EXCEPTIONS=application/json&"
+                + "KEY=키값&"
+                + "DOMAIN=https://kmapshot.com"
+    
+    let image = await axios.get(url, 
+            { responseType: 'arraybuffer' })
+        .then((response) => Buffer.from(response.data, 'binary').toString('base64'))
+   
+    const response = {
+        statusCode: 200,
+        body: image,
+        isBase64Encoded: true,
+        headers: {
+          "Content-Type": "image/png"
+        },
+    
     };
-
-    await chromium.font('/opt/NotoSansKR-Regular.otf');
-
-    const browser = await puppeteer.launch({
-      executablePath: await chromium.executablePath(),
-      args: chromium.args,
-
-      defaultViewport: {
-        width: goal_width,
-        height: goal_width
-      },
-
-      headless: chromium.headless,
-    });
-
-    const page = await browser.newPage();
-    await page.setExtraHTTPHeaders(header);
     
-    await page.goto(domain + `/image/template/` + companyType + `?`
-      + `layerMode=` + layerMode
-      + `&lat=` + lat
-      + `&level=` + level
-      + `&lng=` + lng
-      + `&type=` + type
-      + `&companyType=` + companyType
-      + `&noLabel=` + noLabel);
+    return response;
 
-    await page.waitForSelector('#checker_true');
+};
 
-    responseStream = awslambda.HttpResponseStream.from(responseStream, httpResponseMetadata);
-    
-    let imageBuffer = await page.screenshot({
-      type: "jpeg"
-    });
-    
-    responseStream.write(imageBuffer);
-    responseStream.end();
 
-    let browserPid = browser.process()?.pid
-
-    if (browserPid) {
-      process.kill(browserPid)
-    }
-
-  }
-);
+function isEmpty(input) {
+  return typeof input === "undefined" ||
+    input === null ||
+    input === "" ||
+    input === "null" ||
+    input.length === 0 ||
+    (typeof input === "object" && !Object.keys(input).length);
+}
 
