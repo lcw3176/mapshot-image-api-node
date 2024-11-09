@@ -48,13 +48,3 @@ module.exports.handler = async (event, context) => {
 
 };
 
-
-function isEmpty(input) {
-  return typeof input === "undefined" ||
-    input === null ||
-    input === "" ||
-    input === "null" ||
-    input.length === 0 ||
-    (typeof input === "object" && !Object.keys(input).length);
-}
-
